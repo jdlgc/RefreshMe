@@ -11,3 +11,14 @@ Tipo Issue:
 - bugFix
 - enhancement
 - refactor
+
+**Categorias**:
+ * Comercio
+ * Institucion
+ * Personal
+ * Foro
+ * Red social
+ * Blog
+ * Noticias
+ * Revista
+ * Portal
