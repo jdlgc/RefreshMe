@@ -26,18 +26,27 @@
       <version>4.11</version>
       <scope>test</scope>
     </dependency>
+
     
     <dependency>
 	  <groupId>com.google.firebase</groupId>
 	  <artifactId>firebase-admin</artifactId>
 	  <version>9.1.1</version>
 	</dependency>
-	
+
 	 <dependency>
     	<groupId>javax.servlet</groupId>
     	<artifactId>servlet-api</artifactId>
     	<version>3.0-alpha-1</version>
     </dependency>
+
+
+	<dependency>
+		<groupId>com.sun.mail</groupId>
+		<artifactId>javax.mail</artifactId>
+		<version>1.6.2</version>
+	</dependency>
+    
 
   </dependencies>
 
