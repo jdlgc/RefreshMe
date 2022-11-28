@@ -65,7 +65,7 @@
 </nav>
 
 <div class="container">
-  <form action="<%= request.getContextPath() %>/WebPagesServlet" method="post">
+  <form action="<%= request.getContextPath() %>/webPages" method="post">
     <div class="mb-3">
       <label for="nombre" class="form-label">Nombre</label>
       <input type="text" name="nombre" class="form-control" id="nombre" aria-describedby="nombre">

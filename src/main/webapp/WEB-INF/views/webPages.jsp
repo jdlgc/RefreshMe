@@ -1,3 +1,6 @@
+<%@page import="com.upm.refreshme.backend.WebPage"%>
+<%@page import="java.util.ArrayList"%>
+
 <!DOCTYPE html>
 <html lang="es">
     <head>
@@ -66,6 +69,30 @@
 
         <div class="container">
             <a type="button" class="btn btn-dark" href="addWebPage">A&ntildeadir p&aacutegina web</a>
+        </div>
+
+        <div class="container">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">URL</th>
+                    <th scope="col">Categor&iacutea</th>
+                    <th scope="col">&Uacuteltimos cambios</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <%ArrayList<WebPage> data = (ArrayList<WebPage>)request.getAttribute("data");
+                        for(WebPage wp:data){%>
+                    <tr>
+                        <td><%=wp.getNombre()%></td>
+                        <td><%=wp.getUrl()%></td>
+                        <td><%=wp.getCategoria()%></td>
+                        <td><%=wp.getUltimosCambios()%></td>
+                    </tr>
+                    <%}%>
+                </tbody>
+            </table>
         </div>
 
         <!-- Footer -->

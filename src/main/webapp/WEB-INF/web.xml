@@ -6,10 +6,6 @@
   <display-name>Archetype Created Web Application</display-name>
 
   <servlet>
-    <servlet-name>home</servlet-name>
-    <jsp-file>/WEB-INF/views/home.jsp</jsp-file>
-  </servlet>
-  <servlet>
     <servlet-name>addWebPage</servlet-name>
     <jsp-file>/WEB-INF/views/addWebPage.jsp</jsp-file>
   </servlet>
@@ -22,10 +18,6 @@
     <jsp-file>/WEB-INF/views/logIn.jsp</jsp-file>
   </servlet>
 
-  <servlet-mapping>
-    <servlet-name>home</servlet-name>
-    <url-pattern>/home</url-pattern>
-  </servlet-mapping>
   <servlet-mapping>
     <servlet-name>addWebPage</servlet-name>
     <url-pattern>/addWebPage</url-pattern>
