@@ -4,4 +4,31 @@
 
 <web-app>
   <display-name>Archetype Created Web Application</display-name>
+
+  <servlet>
+    <servlet-name>addWebPage</servlet-name>
+    <jsp-file>/WEB-INF/views/addWebPage.jsp</jsp-file>
+  </servlet>
+  <servlet>
+    <servlet-name>configureProfile</servlet-name>
+    <jsp-file>/WEB-INF/views/configureProfile.jsp</jsp-file>
+  </servlet>
+  <servlet>
+    <servlet-name>logIn</servlet-name>
+    <jsp-file>/WEB-INF/views/logIn.jsp</jsp-file>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>addWebPage</servlet-name>
+    <url-pattern>/addWebPage</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>configureProfile</servlet-name>
+    <url-pattern>/configureProfile</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>logIn</servlet-name>
+    <url-pattern>/logIn</url-pattern>
+  </servlet-mapping>
+
 </web-app>

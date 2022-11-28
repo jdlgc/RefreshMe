@@ -10,7 +10,7 @@
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
-# Package Files #
+# Package Files
 *.jar
 *.war
 *.nar
@@ -26,3 +26,10 @@ hs_err_pid*
 .classpath
 .settings/
 /bin/
+serviceAccountKey.json
+
+# IntelliJ
+.idea/
+
+# Tomcat
+tomcat*/
