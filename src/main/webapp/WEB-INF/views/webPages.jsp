@@ -67,6 +67,17 @@
             </div>
         </nav>
 
+        <form action="<%= request.getContextPath() %>/webPages" method="get" class="container d-flex justify-content-center">
+            <div class="col-md-10">
+                <div class="form-outline">
+                    <input type="text" name="nombre" class="form-control" id="nombre">
+                </div>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-outline-dark">Buscar</button>
+            </div>
+        </form>
+
         <div class="container">
             <a type="button" class="btn btn-dark" href="addWebPage">A&ntildeadir p&aacutegina web</a>
         </div>

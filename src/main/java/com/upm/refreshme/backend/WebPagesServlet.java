@@ -13,7 +13,11 @@ public class WebPagesServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    protected void updateAttributes(HttpServletRequest request) {
+    protected void updateAttributes(HttpServletRequest request, String filtro) {
+        if (filtro != "") {
+            // Busqueda en base de datos con filtro
+        }
+
         // Mock data
         ArrayList<WebPage> webPages = new ArrayList<WebPage>();
         webPages.add(new WebPage("Ejemplo1", "www.ejemplo1.com", "comercio", "03/08/2021"));
@@ -34,13 +38,14 @@ public class WebPagesServlet extends HttpServlet {
         System.out.println("url :: " + url);
         System.out.println("categoria :: " + categoria);
 
-        updateAttributes(request);
+        updateAttributes(request, "");
         request.getRequestDispatcher("/WEB-INF/views/webPages.jsp").forward(request, response);
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        updateAttributes(request);
+        String filtro = request.getParameter("nombre");
+        updateAttributes(request, filtro);
         request.getRequestDispatcher("/WEB-INF/views/webPages.jsp").forward(request, response);
     }
 }
