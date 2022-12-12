@@ -99,7 +99,7 @@
                         <td><%=wp.getNombre()%></td>
                         <td><%=wp.getUrl()%></td>
                         <td><%=wp.getCategoria()%></td>
-                        <td><%=wp.getUltimosCambios()%></td>
+                        <td><%=wp.getUltimosCambios().toString()%></td>
                     </tr>
                     <%}%>
                 </tbody>

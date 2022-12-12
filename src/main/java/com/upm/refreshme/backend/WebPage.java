@@ -1,13 +1,15 @@
 package com.upm.refreshme.backend;
 
+import java.util.Date;
+
 public class WebPage {
 
     private String nombre;
     private String url;
     private String categoria;
-    private String ultimosCambios;
+    private Date ultimosCambios;
 
-    public WebPage(String nombre, String url, String categoria, String ultimosCambios) {
+    public WebPage(String nombre, String url, String categoria, Date ultimosCambios) {
         this.nombre = nombre;
         this.url = url;
         this.categoria = categoria;
@@ -26,7 +28,7 @@ public class WebPage {
         return categoria;
     }
 
-    public String getUltimosCambios() {
+    public Date getUltimosCambios() {
         return ultimosCambios;
     }
 }

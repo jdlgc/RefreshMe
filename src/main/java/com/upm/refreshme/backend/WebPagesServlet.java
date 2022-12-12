@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 import java.util.ArrayList;
 
 @WebServlet("/webPages")
@@ -20,10 +21,10 @@ public class WebPagesServlet extends HttpServlet {
 
         // Mock data
         ArrayList<WebPage> webPages = new ArrayList<WebPage>();
-        webPages.add(new WebPage("Ejemplo1", "www.ejemplo1.com", "comercio", "03/08/2021"));
-        webPages.add(new WebPage("Ejemplo2", "www.ejemplo2.com", "revista", "12/10/2022"));
-        webPages.add(new WebPage("Ejemplo3", "www.ejemplo3.com", "redSocial", "03/07/2021"));
-        webPages.add(new WebPage("Ejemplo4", "www.ejemplo4.com", "noticias", "02/11/2021"));
+        webPages.add(new WebPage("Ejemplo1", "www.ejemplo1.com", "comercio", new Date()));
+        webPages.add(new WebPage("Ejemplo2", "www.ejemplo2.com", "revista", new Date()));
+        webPages.add(new WebPage("Ejemplo3", "www.ejemplo3.com", "redSocial", new Date()));
+        webPages.add(new WebPage("Ejemplo4", "www.ejemplo4.com", "noticias", new Date()));
 
         request.setAttribute("data", webPages);
     }
@@ -34,11 +35,8 @@ public class WebPagesServlet extends HttpServlet {
         String url = request.getParameter("url");
         String categoria = request.getParameter("categoria");
 
-        System.out.println("nombre :: " + nombre);
-        System.out.println("url :: " + url);
-        System.out.println("categoria :: " + categoria);
-
         updateAttributes(request, "");
+        Servlet.saveNewWebPage(new WebPage(nombre, url, categoria, new Date()));
         request.getRequestDispatcher("/WEB-INF/views/webPages.jsp").forward(request, response);
     }
 

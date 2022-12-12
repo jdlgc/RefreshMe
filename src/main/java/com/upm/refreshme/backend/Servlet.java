@@ -2,9 +2,7 @@ package com.upm.refreshme.backend;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -13,21 +11,19 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.google.firebase.auth.EmailIdentifier;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.GetUsersResult;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.CreateRequest;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class Servlet {
 
@@ -39,24 +35,7 @@ public class Servlet {
 	final static String token = "jprafjwywgsijwci";
 
 	public static void main(String[] args) throws IOException{
-
-		FileInputStream serviceAccount = new FileInputStream("./ServiceAccountKey.json");
-
-		FirebaseOptions options = FirebaseOptions.builder()
-				.setCredentials(GoogleCredentials.fromStream(serviceAccount))
-				.setDatabaseUrl("https://refreshme-8db78-default-rtdb.europe-west1.firebasedatabase.app/")
-				.build();
-
-		// Initialize the default app
-		FirebaseApp defaultApp = FirebaseApp.initializeApp(options);
-
-
-		System.out.println(defaultApp.getName());  // "[DEFAULT]"
-
-		// Retrieve services by passing the defaultApp variable...
-		defaultAuth = FirebaseAuth.getInstance(defaultApp);
-		defaultDatabase = FirebaseDatabase.getInstance(defaultApp);
-		
+		firebaseConnection();
 		String password = "123456";
 		
 		if (password.length() < 6) {
@@ -74,6 +53,25 @@ public class Servlet {
 				}
 			}
 		}
+	}
+	
+	private static void firebaseConnection() throws IOException {
+		FileInputStream serviceAccount = new FileInputStream("./ServiceAccountKey.json");
+
+		FirebaseOptions options = FirebaseOptions.builder()
+				.setCredentials(GoogleCredentials.fromStream(serviceAccount))
+				.setDatabaseUrl("https://refreshme-8db78-default-rtdb.europe-west1.firebasedatabase.app/")
+				.build();
+
+		// Initialize the default app
+		FirebaseApp defaultApp = FirebaseApp.initializeApp(options);
+
+
+		System.out.println(defaultApp.getName());  // "[DEFAULT]"
+
+		// Retrieve services by passing the defaultApp variable...
+		defaultAuth = FirebaseAuth.getInstance(defaultApp);
+		defaultDatabase = FirebaseDatabase.getInstance(defaultApp);
 	}
 
 	private static void createUser(String userName, String email, String password) throws FirebaseAuthException {
@@ -151,6 +149,19 @@ public class Servlet {
 			e.printStackTrace();
 		}
 	}
+	private static String getUser() {
+		// TODO
+		return "1";
+	}
 
+	public static void saveNewWebPage(WebPage webPage) throws IOException { 
+		if (defaultDatabase == null)
+			firebaseConnection();
+		DatabaseReference reference = defaultDatabase.getReference("users");
+		DatabaseReference userUrls = reference.child(getUser()).child("web-pages");
+		userUrls.push().setValue(webPage, null);
+	}
+
+			
 
 }
