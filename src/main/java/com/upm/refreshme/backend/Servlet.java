@@ -19,21 +19,28 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.UserAuthorizer;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.EmailIdentifier;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.GetUsersResult;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseCredentials;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.CreateRequest;
+import com.google.firebase.auth.internal.GetAccountInfoResponse.User;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.internal.FirebaseService;
+import com.google.firebase.auth.UserInfo;
 
 public class Servlet {
 
 	private static UserRecord userRecord;
 	private static FirebaseAuth defaultAuth;
 	private static FirebaseDatabase defaultDatabase;
+	private static User userAuth;
+	
 
 	final static String rmEmail = "refreshmeapp@gmail.com";
 	final static String token = "jprafjwywgsijwci";
@@ -50,7 +57,7 @@ public class Servlet {
 		// Initialize the default app
 		FirebaseApp defaultApp = FirebaseApp.initializeApp(options);
 
-
+		
 		System.out.println(defaultApp.getName());  // "[DEFAULT]"
 
 		// Retrieve services by passing the defaultApp variable...
@@ -152,5 +159,20 @@ public class Servlet {
 		}
 	}
 
+	private static void logIn(String email, String password) throws FirebaseAuthException {
+		//Check if user already signed from previous session		
+		defaultAuth = FirebaseAuth.getInstance();
+		
+		UserRecord userRecord = FirebaseAuth.getInstance().getUserByEmail(email);
+		// See the UserRecord reference doc for the contents of userRecord.
+		System.out.println("Successfully fetched user data: " + userRecord.getEmail());
+
+	}
+	private static FirebaseAuth firebaseAuth;
+	
+	private static void logOut(String email, String password) throws FirebaseAuthException {
+		//FirebaseAuth.getInstance().signOut();
+
+	}
 
 }
