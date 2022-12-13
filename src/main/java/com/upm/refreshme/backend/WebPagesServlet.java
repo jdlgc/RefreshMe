@@ -14,7 +14,7 @@ public class WebPagesServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    protected void updateAttributes(HttpServletRequest request, String filtro) {
+    protected void updateAttributes(HttpServletRequest request, String filtro) throws IOException {
         if (filtro != "") {
             // Busqueda en base de datos con filtro
         }
@@ -25,6 +25,14 @@ public class WebPagesServlet extends HttpServlet {
         webPages.add(new WebPage("Ejemplo2", "www.ejemplo2.com", "revista", new Date()));
         webPages.add(new WebPage("Ejemplo3", "www.ejemplo3.com", "redSocial", new Date()));
         webPages.add(new WebPage("Ejemplo4", "www.ejemplo4.com", "noticias", new Date()));
+        
+        System.out.println("Firebase response - Web pages:" + Servlet.getWebPages());
+        
+//        that generates a exception because while the listener is still getting the web pages from firebase,
+//        the page is already being buid:
+//        Servlet.getWebPages().forEach((webPage) -> {
+//        	webPages.add(webPage);
+//        });
 
         request.setAttribute("data", webPages);
     }

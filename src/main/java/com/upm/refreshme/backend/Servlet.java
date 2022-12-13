@@ -2,6 +2,9 @@ package com.upm.refreshme.backend;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -19,17 +22,19 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.CreateRequest;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 public class Servlet {
 
 	private static UserRecord userRecord;
 	private static FirebaseAuth defaultAuth;
 	private static FirebaseDatabase defaultDatabase;
+	private static DatabaseReference databaseReference;
+	private static ArrayList<WebPage> userWebPages = new ArrayList<WebPage>();
 
 	final static String rmEmail = "refreshmeapp@gmail.com";
 	final static String token = "jprafjwywgsijwci";
@@ -72,6 +77,11 @@ public class Servlet {
 		// Retrieve services by passing the defaultApp variable...
 		defaultAuth = FirebaseAuth.getInstance(defaultApp);
 		defaultDatabase = FirebaseDatabase.getInstance(defaultApp);
+	}
+	
+	private static void setUserDatabaseReference() {
+		databaseReference = defaultDatabase.getReference("users/" + getUser() + "/web-pages");
+		getData();
 	}
 
 	private static void createUser(String userName, String email, String password) throws FirebaseAuthException {
@@ -149,19 +159,69 @@ public class Servlet {
 			e.printStackTrace();
 		}
 	}
+	
 	private static String getUser() {
 		// TODO
 		return "1";
+	}
+	
+	private static void getData() {
+		System.out.println("getData(): userWebPages:" + userWebPages);
+		databaseReference.orderByValue().addChildEventListener(new ChildEventListener() {
+				@Override
+				public void onChildAdded(DataSnapshot dataSnapshot, String prevChildKey) {
+					System.out.println("The " + dataSnapshot.getKey() + " web page is " + dataSnapshot.getValue() + dataSnapshot.getValue().getClass());
+					@SuppressWarnings("unchecked")
+					WebPage webPage = new WebPage(
+							((HashMap<String, String>)dataSnapshot.getValue()).get("nombre"),
+							((HashMap<String, String>)dataSnapshot.getValue()).get("url"),
+							((HashMap<String, String>)dataSnapshot.getValue()).get("categoria"),
+							new Date() // FIX
+					);
+					System.out.println("web page: " + webPage);
+					userWebPages.add(webPage);
+				}
+
+				@Override
+				public void onChildChanged(DataSnapshot snapshot, String previousChildName) {
+					// TODO Auto-generated method stub
+					
+				}
+	
+				@Override
+				public void onChildRemoved(DataSnapshot snapshot) {
+					// TODO Auto-generated method stub
+				}
+	
+				@Override
+				public void onChildMoved(DataSnapshot snapshot, String previousChildName) {
+					// TODO Auto-generated method stub
+					
+				}
+	
+				@Override
+				public void onCancelled(DatabaseError error) {
+					// TODO Auto-generated method stub
+					
+				}
+			});
+
 	}
 
 	public static void saveNewWebPage(WebPage webPage) throws IOException { 
 		if (defaultDatabase == null)
 			firebaseConnection();
+		setUserDatabaseReference();
 		DatabaseReference reference = defaultDatabase.getReference("users");
 		DatabaseReference userUrls = reference.child(getUser()).child("web-pages");
 		userUrls.push().setValue(webPage, null);
 	}
 
-			
+	public static ArrayList<WebPage> getWebPages() throws IOException { 
+		if (defaultDatabase == null)
+			firebaseConnection();
+		setUserDatabaseReference();		
+		return userWebPages;
+	}
 
 }
