@@ -22,7 +22,7 @@ public class WebPagesServlet extends HttpServlet {
             // Busqueda en base de datos con filtro
         }
 
-        ArrayList<WebPage> webPages = servlet.getWebPagesList();
+        ArrayList<WebPage> webPages = servlet.getWebPagesList(filtro);
 
         request.setAttribute("data", webPages);
     }

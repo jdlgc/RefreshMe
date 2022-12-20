@@ -22,8 +22,11 @@ import javax.mail.internet.MimeMessage;
 
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
@@ -178,12 +181,10 @@ public class Servlet {
         return true;
 	}
 	
-	public ArrayList<WebPage> getWebPagesList() {
+	public ArrayList<WebPage> getWebPagesList(String filter) {
 		ArrayList<WebPage> webPages = new ArrayList<WebPage>();
 		try {
-			ApiFuture<QuerySnapshot> future = db.collection("users").document(getUser())
-					.collection("web-pages").get();
-			List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+			List<QueryDocumentSnapshot> documents = getDocuments(filter);
 			for (QueryDocumentSnapshot document : documents) {
 				WebPage webPage = new WebPage(document.getData().get("nombre").toString(), 
 						document.getData().get("url").toString(), 
@@ -195,6 +196,27 @@ public class Servlet {
 			e.printStackTrace();
 		}
 		return webPages;
+	}
+	
+	private List<QueryDocumentSnapshot> getDocuments(String filter) throws Exception {
+		CollectionReference collectionReference = db.collection("users").document(getUser()).collection("web-pages");
+		if (filter.isEmpty() || filter == null)
+			return collectionReference.get().get().getDocuments();
+		
+		List<QueryDocumentSnapshot> documents =	new ArrayList<QueryDocumentSnapshot>();
+		getDocumentsFilteredByField(collectionReference, "nombre", filter).forEach((document) -> documents.add(document));
+		getDocumentsFilteredByField(collectionReference, "categoria", filter).forEach((document) -> documents.add(document));
+		getDocumentsFilteredByField(collectionReference, "url", filter).forEach((document) -> documents.add(document));
+		getDocumentsFilteredByField(collectionReference, "ultimosCambios", filter).forEach((document) -> documents.add(document));
+		
+		return documents;
+		
+	}
+	
+	private List<QueryDocumentSnapshot> getDocumentsFilteredByField(CollectionReference collectionReference, 
+			String field, String filter) throws Exception {
+		Query query = collectionReference.whereEqualTo(field, filter);
+		return query.get().get().getDocuments();
 	}
 
 
