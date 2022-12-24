@@ -2,7 +2,10 @@ package com.upm.refreshme.backend;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
@@ -18,18 +21,23 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.UserAuthorizer;
+import com.google.cloud.firestore.CollectionReference;
+import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.EmailIdentifier;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GetUsersResult;
 import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseCredentials;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.CreateRequest;
 import com.google.firebase.auth.internal.GetAccountInfoResponse.User;
+import com.google.firebase.cloud.FirestoreClient;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.internal.FirebaseService;
 import com.google.firebase.auth.UserInfo;
@@ -40,7 +48,7 @@ public class Servlet {
 	private static FirebaseAuth defaultAuth;
 	private static FirebaseDatabase defaultDatabase;
 	private static User userAuth;
-	
+	private List<String> WebPages;
 
 	final static String rmEmail = "refreshmeapp@gmail.com";
 	final static String token = "jprafjwywgsijwci";
@@ -65,7 +73,15 @@ public class Servlet {
 		defaultDatabase = FirebaseDatabase.getInstance(defaultApp);
 		
 		String password = "123456";
-		
+		try {
+			getClientPages();
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (ExecutionException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		if (password.length() < 6) {
 			System.out.println("Por favor, introduzca  una contraseña de al menos 6 caracteres.");
 		} else {
@@ -173,6 +189,41 @@ public class Servlet {
 	private static void logOut(String email, String password) throws FirebaseAuthException {
 		//FirebaseAuth.getInstance().signOut();
 
+	}
+	private static List <WebPage> UserWebPages = new ArrayList<WebPage>();
+	public List<WebPage> getWebPageList(){
+		return UserWebPages;
+	}
+	
+	private static void getClientPages() throws InterruptedException, ExecutionException {
+		
+		CollectionReference WebPages = FirestoreClient.getFirestore().collection("users/1/web-pages/") ;
+		System.out.println("Hay paginas:");
+		ApiFuture<QuerySnapshot> querysnapshot =WebPages.get();	
+		
+		for (DocumentSnapshot web : querysnapshot.get().getDocuments()) {
+			WebPage webpage = new WebPage(
+					web.getId(),
+					web.getString("categoria"),
+					web.getString("nombre"),
+					web.getString("ultimosCambios"),
+					web.getString("url")
+				);
+			System.out.println("id: "+ web.getId());
+			System.out.println("categoria: "+ web.getString("categoria"));
+			System.out.println("name: "+ web.getString("nombre"));
+			System.out.println("ultimosCambios: "+ web.getString("ultimosCambios"));
+			System.out.println("url: "+web.getString("url"));
+			UserWebPages.add(webpage);
+			System.out.println("---------------------");
+		}
+	
+	}
+	private static void  deleteClientPages(int index) throws InterruptedException, ExecutionException{
+		
+		ApiFuture<WriteResult> writeResult = FirestoreClient.getFirestore().collection("users/1/web-pages").document(UserWebPages.get(index).getId()).delete();
+
+		System.out.println("Update time : " + writeResult.get().getUpdateTime());
 	}
 
 }
