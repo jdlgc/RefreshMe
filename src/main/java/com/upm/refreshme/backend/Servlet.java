@@ -1,9 +1,15 @@
 package com.upm.refreshme.backend;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import javax.mail.Message;
@@ -13,20 +19,24 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 
+import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.firestore.CollectionReference;
+import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.Query;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
+import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.google.firebase.auth.EmailIdentifier;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.GetUsersResult;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.CreateRequest;
+import com.google.firebase.cloud.FirestoreClient;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class Servlet {
@@ -34,46 +44,39 @@ public class Servlet {
 	private static UserRecord userRecord;
 	private static FirebaseAuth defaultAuth;
 	private static FirebaseDatabase defaultDatabase;
+	private static Firestore db;
 
 	final static String rmEmail = "refreshmeapp@gmail.com";
 	final static String token = "jprafjwywgsijwci";
-
-	public static void main(String[] args) throws IOException{
-
-		FileInputStream serviceAccount = new FileInputStream("./ServiceAccountKey.json");
-
-		FirebaseOptions options = FirebaseOptions.builder()
-				.setCredentials(GoogleCredentials.fromStream(serviceAccount))
-				.setDatabaseUrl("https://refreshme-8db78-default-rtdb.europe-west1.firebasedatabase.app/")
-				.build();
-
-		// Initialize the default app
-		FirebaseApp defaultApp = FirebaseApp.initializeApp(options);
-
-
-		System.out.println(defaultApp.getName());  // "[DEFAULT]"
-
-		// Retrieve services by passing the defaultApp variable...
-		defaultAuth = FirebaseAuth.getInstance(defaultApp);
-		defaultDatabase = FirebaseDatabase.getInstance(defaultApp);
-		
-		String password = "123456";
-		
-		if (password.length() < 6) {
-			System.out.println("Por favor, introduzca  una contraseña de al menos 6 caracteres.");
-		} else {
-			try {
-				createUser("John Doe", "jorcordd@gmail.com", password);
-			} catch (FirebaseAuthException e) {
-				switch(e.getMessage()) {
-				case "The user with the provided email already exists (EMAIL_EXISTS).":
-					System.out.println("Correo ya registrado, por favor, introduzca un correo no existente en RefreshMe.");
-					break;
-				default:
-					System.out.println(e.getMessage());
-				}
-			}
+	
+	public Servlet() {
+		db = initiateFirebase();
+	}
+	
+	private static Firestore initiateFirebase() {
+		FileInputStream serviceAccount;
+		try {
+			serviceAccount = new FileInputStream("./ServiceAccountKey.json");
+			FirebaseOptions options = FirebaseOptions.builder()
+					.setCredentials(GoogleCredentials.fromStream(serviceAccount))
+					.setDatabaseUrl("https://refreshme-8db78-default-rtdb.europe-west1.firebasedatabase.app/")
+					.build();
+			
+			// Initialize the default app
+			FirebaseApp defaultApp = FirebaseApp.initializeApp(options);
+			
+			
+			System.out.println(defaultApp.getName());  // "[DEFAULT]"
+			
+			// Retrieve services by passing the defaultApp variable...
+			defaultAuth = FirebaseAuth.getInstance(defaultApp);
+			defaultDatabase = FirebaseDatabase.getInstance(defaultApp);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+
+		return FirestoreClient.getFirestore();
 	}
 
 	private static void createUser(String userName, String email, String password) throws FirebaseAuthException {
@@ -150,6 +153,70 @@ public class Servlet {
 		} catch (MessagingException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static String getUser() {
+		// TODO
+		return "1";
+	}
+	
+	public boolean addNewWebPage(WebPage webPage) {
+		DocumentReference docRef = db.collection("users").document(getUser())
+				.collection("web-pages").document(UUID.randomUUID().toString());
+
+		Map<String, Object> data = new HashMap<>();
+        data.put("nombre", webPage.getNombre());
+        data.put("categoria", webPage.getCategoria());
+        data.put("url", webPage.getUrl());
+        data.put("ultimosCambios", webPage.getUltimosCambios());
+        
+        ApiFuture<WriteResult> result = docRef.set(data);
+
+        try {
+			System.out.println("Update time : " + result.get().getUpdateTime());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+        return true;
+	}
+	
+	public ArrayList<WebPage> getWebPagesList(String filter) {
+		ArrayList<WebPage> webPages = new ArrayList<WebPage>();
+		try {
+			List<QueryDocumentSnapshot> documents = getDocuments(filter);
+			for (QueryDocumentSnapshot document : documents) {
+				WebPage webPage = new WebPage(document.getData().get("nombre").toString(), 
+						document.getData().get("url").toString(), 
+						document.getData().get("categoria").toString(), 
+						document.getData().get("ultimosCambios").toString());
+				webPages.add(webPage);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return webPages;
+	}
+	
+	private List<QueryDocumentSnapshot> getDocuments(String filter) throws Exception {
+		CollectionReference collectionReference = db.collection("users").document(getUser()).collection("web-pages");
+		if (filter.isEmpty() || filter == null)
+			return collectionReference.get().get().getDocuments();
+		
+		List<QueryDocumentSnapshot> documents =	new ArrayList<QueryDocumentSnapshot>();
+		getDocumentsFilteredByField(collectionReference, "nombre", filter).forEach((document) -> documents.add(document));
+		getDocumentsFilteredByField(collectionReference, "categoria", filter).forEach((document) -> documents.add(document));
+		getDocumentsFilteredByField(collectionReference, "url", filter).forEach((document) -> documents.add(document));
+		getDocumentsFilteredByField(collectionReference, "ultimosCambios", filter).forEach((document) -> documents.add(document));
+		
+		return documents;
+		
+	}
+	
+	private List<QueryDocumentSnapshot> getDocumentsFilteredByField(CollectionReference collectionReference, 
+			String field, String filter) throws Exception {
+		Query query = collectionReference.whereEqualTo(field, filter);
+		return query.get().get().getDocuments();
 	}
 
 
