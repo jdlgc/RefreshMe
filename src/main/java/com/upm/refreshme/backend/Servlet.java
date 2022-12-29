@@ -190,12 +190,12 @@ public class Servlet {
 		//FirebaseAuth.getInstance().signOut();
 
 	}
-	private static List <WebPage> UserWebPages = new ArrayList<WebPage>();
+	protected static List <WebPage> UserWebPages = new ArrayList<WebPage>();
 	public List<WebPage> getWebPageList(){
 		return UserWebPages;
 	}
 	
-	private static void getClientPages() throws InterruptedException, ExecutionException {
+	protected static void getClientPages() throws InterruptedException, ExecutionException {
 		
 		CollectionReference WebPages = FirestoreClient.getFirestore().collection("users/1/web-pages/") ;
 		System.out.println("Hay paginas:");
@@ -219,7 +219,7 @@ public class Servlet {
 		}
 	
 	}
-	private static void  deleteClientPages(int index) throws InterruptedException, ExecutionException{
+	protected static void  deleteClientPages(int index) throws InterruptedException, ExecutionException{
 		
 		ApiFuture<WriteResult> writeResult = FirestoreClient.getFirestore().collection("users/1/web-pages").document(UserWebPages.get(index).getId()).delete();
 
