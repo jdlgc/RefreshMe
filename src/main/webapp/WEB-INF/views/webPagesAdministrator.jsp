@@ -1,6 +1,4 @@
-<%-- <%@page import="com.upm.refreshme.backend.WebPage"%> --%>
-<%@ page language='java' contentType="text/html" %>
-<%@page import="java.util.ArrayList"%>
+<%@ page import="java.util.ArrayList"%>
 <%@ page import="com.upm.refreshme.backend.WebPage;" %>
 
 <!DOCTYPE html>

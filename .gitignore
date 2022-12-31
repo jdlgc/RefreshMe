@@ -26,4 +26,4 @@ hs_err_pid*
 .classpath
 .settings/
 /bin/
-serviceAccountKey.json
+ServiceAccountKey.json
